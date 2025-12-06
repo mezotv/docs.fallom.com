@@ -1,97 +1,67 @@
 ---
 title: "Introduction"
-description: "Welcome to the new home for your documentation"
+description: "Ship better AI products with observability, A/B testing, and optimization"
 ---
 
-## Setting up
+## What is Fallom?
 
-Get your documentation site up and running in minutes.
+Fallom is the observability and experimentation platform for AI-powered applications. With just a few lines of code, you get:
+
+- **Automatic tracing** - Every LLM call captured with model, tokens, latency, prompts, and completions
+- **A/B testing** - Test different models and prompts to find what works best
+- **Session tracking** - Group related LLM calls by user or conversation
 
 <Card
-  title="Start here"
+  title="Get started in 5 minutes"
   icon="rocket"
   href="/quickstart"
   horizontal
 >
-  Follow our three step quickstart guide.
+  Install the SDK and start tracing your LLM calls.
 </Card>
 
-## Make it yours
-
-Design a docs site that looks great and empowers your users.
+## Core Features
 
 <Columns cols={2}>
-  <Card
-    title="Edit locally"
-    icon="pen-to-square"
-    href="/development"
-  >
-    Edit your docs locally and preview them in real time.
+  <Card title="Quickstart" icon="bolt" href="/quickstart">
+    Get up and running with Fallom in minutes.
   </Card>
-  <Card
-    title="Customize your site"
-    icon="palette"
-    href="/essentials/settings"
-  >
-    Customize the design and colors of your site to match your brand.
+  <Card title="Model A/B Testing" icon="flask" href="/model-testing">
+    Test different LLM models to optimize performance and cost.
   </Card>
-    <Card
-    title="Set up navigation"
-    icon="map"
-    href="/essentials/navigation"
-  >
-    Organize your docs to help users find what they need and succeed with your product.
+  <Card title="Prompt Management" icon="pen-fancy" href="/prompt-testing">
+    Experiment with prompts to improve your AI outputs.
   </Card>
-  <Card
-    title="API documentation"
-    icon="terminal"
-    href="/api-reference/introduction"
-  >
-    Auto-generate API documentation from OpenAPI specifications.
+  <Card title="API Reference" icon="code" href="/api-reference/introduction">
+    Explore the complete Fallom API documentation.
   </Card>
 </Columns>
 
-## Create beautiful pages
+## How It Works
 
-Everything you need to create world-class documentation.
+<Steps>
+  <Step title="Initialize Fallom">
+    Add the SDK to your project and initialize it with your API key from the [dashboard](https://bench.fallom.com).
+  </Step>
+  <Step title="Make LLM Calls">
+    Use your existing OpenAI, Anthropic, or other LLM code—Fallom traces automatically.
+  </Step>
+  <Step title="Analyze & Optimize">
+    View traces in your [dashboard](https://bench.fallom.com) and run experiments to improve your AI.
+  </Step>
+</Steps>
 
-<Columns cols={2}>
-  <Card
-    title="Write with MDX"
-    icon="pen-fancy"
-    href="/essentials/markdown"
-  >
-    Use MDX to style your docs pages.
-  </Card>
-  <Card
-    title="Code samples"
-    icon="code"
-    href="/essentials/code"
-  >
-    Add sample code to demonstrate how to use your product.
-  </Card>
-  <Card
-    title="Images"
-    icon="image"
-    href="/essentials/images"
-  >
-    Display images and other media.
-  </Card>
-  <Card
-    title="Reusable snippets"
-    icon="recycle"
-    href="/essentials/reusable-snippets"
-  >
-    Write once and reuse across your docs.
-  </Card>
-</Columns>
-
-## Need inspiration?
-
-<Card
-  title="See complete examples"
-  icon="stars"
-  href="https://mintlify.com/customers"
->
-  Browse our showcase of exceptional documentation sites.
+<Card title="Open Dashboard" icon="gauge" href="https://bench.fallom.com" horizontal>
+  Get your API key, create configs, and view your traces
 </Card>
+
+## Supported Languages
+
+<CardGroup cols={2}>
+  <Card title="Python" icon="python">
+    `pip install fallom`
+  </Card>
+  <Card title="TypeScript" icon="js">
+    `npm install @fallom/trace`
+  </Card>
+</CardGroup>

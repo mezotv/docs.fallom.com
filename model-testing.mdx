@@ -1,0 +1,92 @@
+---
+title: "Model A/B Testing"
+description: "Test different LLM models to optimize performance, quality, and cost"
+---
+
+Run A/B tests on models with zero latency. Same session always gets same model (sticky assignment).
+
+<Tip>
+  Create and manage your model configs in the [dashboard](https://bench.fallom.com).
+</Tip>
+
+<Tabs>
+  <Tab title="Python">
+    ```python
+    from fallom import models
+
+    # Get assigned model for this session
+    model = models.get("summarizer-config", session_id)
+    # Returns: "gpt-4o" or "claude-3-5-sonnet" based on your config weights
+
+    agent = Agent(model=model)
+    agent.run(message)
+    ```
+
+    ### Version Pinning
+
+    Pin to a specific config version, or use latest (default):
+
+    ```python
+    # Use latest version (default)
+    model = models.get("my-config", session_id)
+
+    # Pin to specific version
+    model = models.get("my-config", session_id, version=2)
+    ```
+
+    ### Fallback for Resilience
+
+    Always provide a fallback so your app works even if Fallom is down:
+
+    ```python
+    model = models.get(
+        "my-config",
+        session_id,
+        fallback="gpt-4o-mini"  # Used if config not found or Fallom unreachable
+    )
+    ```
+
+  </Tab>
+  <Tab title="TypeScript">
+    ```typescript
+    import { models } from "@fallom/trace";
+
+    // Get assigned model for this session
+    const model = await models.get("summarizer-config", sessionId);
+    // Returns: "gpt-4o" or "claude-3-5-sonnet" based on your config weights
+
+    const response = await openai.chat.completions.create({ model, ... });
+    ```
+
+    ### Fallback for Resilience
+
+    ```typescript
+    const model = await models.get("my-config", sessionId, {
+      fallback: "gpt-4o-mini", // Used if config not found or Fallom unreachable
+    });
+    ```
+
+  </Tab>
+</Tabs>
+
+## Resilience Guarantees
+
+<CardGroup cols={2}>
+  <Card title="Background Sync" icon="rotate">
+    Config sync never blocks your requests
+  </Card>
+  <Card title="Graceful Degradation" icon="shield">
+    Returns fallback on any error
+  </Card>
+</CardGroup>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Prompt Management" icon="pen-fancy" href="/prompt-testing">
+    Test different prompts alongside model variants.
+  </Card>
+  <Card title="View Analytics" icon="chart-line" href="https://bench.fallom.com">
+    Analyze experiment results in your dashboard.
+  </Card>
+</CardGroup>

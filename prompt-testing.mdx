@@ -1,0 +1,177 @@
+---
+title: "Prompt Management"
+description: "Manage prompts centrally and A/B test them with zero latency"
+---
+
+Manage prompts centrally and A/B test them with zero latency.
+
+<Tip>
+  Create and manage your prompts in the [dashboard](https://bench.fallom.com).
+</Tip>
+
+<Tabs>
+  <Tab title="Python">
+    ## Basic Prompt Retrieval
+
+    ```python
+    from fallom import prompts
+
+    # Get a managed prompt (with template variables)
+    prompt = prompts.get("onboarding", variables={
+        "user_name": "John",
+        "company": "Acme"
+    })
+
+    # Use the prompt with any LLM
+    response = client.chat.completions.create(
+        model="gpt-4o",
+        messages=[
+            {"role": "system", "content": prompt.system},
+            {"role": "user", "content": prompt.user}
+        ]
+    )
+    ```
+
+    The prompt object contains:
+
+    | Field       | Description                                    |
+    | ----------- | ---------------------------------------------- |
+    | `key`       | The prompt key                                 |
+    | `version`   | The prompt version                             |
+    | `system`    | The system prompt (with variables replaced)    |
+    | `user`      | The user template (with variables replaced)    |
+
+    ## Prompt A/B Testing
+
+    Run experiments on different prompt versions:
+
+    ```python
+    from fallom import prompts
+
+    # Get prompt from A/B test (sticky assignment based on session_id)
+    prompt = prompts.get_ab("onboarding-test", session_id, variables={
+        "user_name": "John"
+    })
+
+    # prompt.ab_test_key and prompt.variant_index are set
+    # for analytics in your dashboard
+    ```
+
+    ## Version Pinning
+
+    ```python
+    # Use latest version (default)
+    prompt = prompts.get("my-prompt")
+
+    # Pin to specific version
+    prompt = prompts.get("my-prompt", version=2)
+    ```
+
+    ## Automatic Trace Tagging
+
+    When you call `prompts.get()` or `prompts.get_ab()`, the next LLM call is automatically tagged with the prompt information. This allows you to see which prompts are used in your traces without any extra code.
+
+    ```python
+    # Get prompt - sets up auto-tagging for next LLM call
+    prompt = prompts.get("onboarding", variables={"user_name": "John"})
+
+    # This call is automatically tagged with prompt_key, prompt_version, etc.
+    response = client.chat.completions.create(
+        model="gpt-4o",
+        messages=[
+            {"role": "system", "content": prompt.system},
+            {"role": "user", "content": prompt.user}
+        ]
+    )
+    ```
+
+  </Tab>
+  <Tab title="TypeScript">
+    ## Basic Prompt Retrieval
+
+    ```typescript
+    import { prompts } from "@fallom/trace";
+
+    // Get a managed prompt (with template variables)
+    const prompt = await prompts.get("onboarding", {
+      variables: { userName: "John", company: "Acme" },
+    });
+
+    // Use the prompt with any LLM
+    const response = await openai.chat.completions.create({
+      model: "gpt-4o",
+      messages: [
+        { role: "system", content: prompt.system },
+        { role: "user", content: prompt.user },
+      ],
+    });
+    ```
+
+    The prompt object contains:
+
+    | Field       | Description                                    |
+    | ----------- | ---------------------------------------------- |
+    | `key`       | The prompt key                                 |
+    | `version`   | The prompt version                             |
+    | `system`    | The system prompt (with variables replaced)    |
+    | `user`      | The user template (with variables replaced)    |
+
+    ## Prompt A/B Testing
+
+    Run experiments on different prompt versions:
+
+    ```typescript
+    import { prompts } from "@fallom/trace";
+
+    // Get prompt from A/B test (sticky assignment based on sessionId)
+    const prompt = await prompts.getAB("onboarding-test", sessionId, {
+      variables: { userName: "John" },
+    });
+
+    // prompt.abTestKey and prompt.variantIndex are set
+    // for analytics in your dashboard
+    ```
+
+    ## Version Pinning
+
+    ```typescript
+    // Use latest version (default)
+    const prompt = await prompts.get("my-prompt");
+
+    // Pin to specific version
+    const prompt = await prompts.get("my-prompt", { version: 2 });
+    ```
+
+    ## Automatic Trace Tagging
+
+    When you call `prompts.get()` or `prompts.getAB()`, the next LLM call is automatically tagged with the prompt information. This allows you to see which prompts are used in your traces without any extra code.
+
+    ```typescript
+    // Get prompt - sets up auto-tagging for next LLM call
+    const prompt = await prompts.get("onboarding", {
+      variables: { userName: "John" },
+    });
+
+    // This call is automatically tagged with promptKey, promptVersion, etc.
+    const response = await openai.chat.completions.create({
+      model: "gpt-4o",
+      messages: [
+        { role: "system", content: prompt.system },
+        { role: "user", content: prompt.user },
+      ],
+    });
+    ```
+
+  </Tab>
+</Tabs>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Model A/B Testing" icon="flask" href="/model-testing">
+    Combine prompt tests with model experiments.
+  </Card>
+  <Card title="View Dashboard" icon="gauge" href="https://bench.fallom.com">
+    Manage prompts and view analytics.
+  </Card>
+</CardGroup>

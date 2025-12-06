@@ -1,33 +1,261 @@
 ---
-title: 'Introduction'
-description: 'Example section for showcasing API endpoints'
+title: "API Reference"
+description: "Complete SDK reference for Fallom"
 ---
 
-<Note>
-  If you're not looking to build API reference documentation, you can delete
-  this section by removing the api-reference folder.
-</Note>
+<Tabs>
+  <Tab title="Python">
+    ### Initialize
 
-## Welcome
+    ```python
+    fallom.init(api_key=None, base_url=None, capture_content=True)
+    ```
 
-There are two ways to build API documentation: [OpenAPI](https://mintlify.com/docs/api-playground/openapi/setup) and [MDX components](https://mintlify.com/docs/api-playground/mdx/configuration). For the starter kit, we are using the following OpenAPI specification.
+    Initialize the SDK. Call this **before** importing LLM libraries for auto-instrumentation.
 
-<Card
-  title="Plant Store Endpoints"
-  icon="leaf"
-  href="https://github.com/mintlify/starter/blob/main/api-reference/openapi.json"
->
-  View the OpenAPI specification file
-</Card>
+    | Parameter | Type | Description |
+    | --------- | ---- | ----------- |
+    | `api_key` | str | Your Fallom API key (or use `FALLOM_API_KEY` env var) |
+    | `base_url` | str | API endpoint (default:`https://spans.fallom.com`) |
+    | `capture_content` | bool | Whether to capture prompt/completion text (default: `True`) |
 
-## Authentication
+    ---
 
-All API endpoints are authenticated using Bearer tokens and picked up from the specification file.
+    ### Get Model
 
-```json
-"security": [
-  {
-    "bearerAuth": []
-  }
-]
-```
+    ```python
+    fallom.models.get(config_key, session_id, version=None, fallback=None) -> str
+    ```
+
+    Get model assignment for a session.
+
+    | Parameter | Type | Description |
+    | --------- | ---- | ----------- |
+    | `config_key` | str | Your config name from the dashboard |
+    | `session_id` | str | Unique session/conversation ID (sticky assignment) |
+    | `version` | int | Pin to specific version (default: latest) |
+    | `fallback` | str | Model to return if anything fails |
+
+    ---
+
+    ### Get Prompt
+
+    ```python
+    fallom.prompts.get(prompt_key, variables=None, version=None) -> PromptResult
+    ```
+
+    Get a managed prompt.
+
+    | Parameter | Type | Description |
+    | --------- | ---- | ----------- |
+    | `prompt_key` | str | Your prompt key from the dashboard |
+    | `variables` | dict | Template variables (e.g., `{"user_name": "John"}`) |
+    | `version` | int | Pin to specific version (default: latest) |
+
+    **Returns:** `PromptResult` with `key`, `version`, `system`, `user`
+
+    ---
+
+    ### Get Prompt A/B Test
+
+    ```python
+    fallom.prompts.get_ab(ab_test_key, session_id, variables=None) -> PromptResult
+    ```
+
+    Get a prompt from an A/B test (sticky assignment).
+
+    | Parameter | Type | Description |
+    | --------- | ---- | ----------- |
+    | `ab_test_key` | str | Your A/B test key from the dashboard |
+    | `session_id` | str | Unique session/conversation ID (for sticky assignment) |
+    | `variables` | dict | Template variables |
+
+    **Returns:** `PromptResult` with `key`, `version`, `system`, `user`, `ab_test_key`, `variant_index`
+
+    ---
+
+    ### Set Session
+
+    ```python
+    fallom.trace.set_session(config_key, session_id)
+    ```
+
+    Set trace context. All subsequent LLM calls will be tagged with this `config_key` and `session_id`.
+
+    ---
+
+    ### Clear Session
+
+    ```python
+    fallom.trace.clear_session()
+    ```
+
+    Clear trace context.
+
+    ---
+
+    ### Record Custom Metrics
+
+    ```python
+    fallom.trace.span(data, config_key=None, session_id=None)
+    ```
+
+    Record custom business metrics.
+
+    | Parameter | Type | Description |
+    | --------- | ---- | ----------- |
+    | `data` | dict | Metrics to record |
+    | `config_key` | str | Optional if `set_session()` was called |
+    | `session_id` | str | Optional if `set_session()` was called |
+
+    ---
+
+    ### Supported LLM Providers
+
+    Auto-instrumentation available for:
+
+    - OpenAI (+ OpenAI-compatible APIs: OpenRouter, LiteLLM, vLLM, Ollama, etc.)
+    - Anthropic
+    - Cohere
+    - AWS Bedrock
+    - Google Generative AI
+    - Mistral AI
+    - LangChain
+    - Replicate
+    - Vertex AI
+
+    Install the corresponding `opentelemetry-instrumentation-*` package for your provider.
+
+    <Note>
+      You must use the official SDK for your provider. Raw HTTP requests (e.g., `requests.post()`) will not be traced. For OpenAI-compatible APIs, use the OpenAI SDK with a custom `base_url`.
+    </Note>
+
+  </Tab>
+  <Tab title="TypeScript">
+    ### Initialize
+
+    ```typescript
+    fallom.init(apiKey, baseUrl, captureContent)
+    ```
+
+    Initialize the SDK.
+
+    | Option | Type | Description |
+    | ------ | ---- | ----------- |
+    | `apiKey` | string | Your Fallom API key (or use `FALLOM_API_KEY` env var) |
+    | `baseUrl` | string | API endpoint (default:`https://spans.fallom.com`) |
+    | `captureContent` | boolean | Whether to capture prompt/completion text (default: `true`) |
+
+    ---
+
+    ### Wrap OpenAI
+
+    ```typescript
+    fallom.trace.wrapOpenAI(client)
+    ```
+
+    Wrap OpenAI client for automatic tracing. Works with any OpenAI-compatible API.
+
+    ---
+
+    ### Wrap Anthropic
+
+    ```typescript
+    fallom.trace.wrapAnthropic(client)
+    ```
+
+    Wrap Anthropic client for automatic tracing.
+
+    ---
+
+    ### Wrap Google AI
+
+    ```typescript
+    fallom.trace.wrapGoogleAI(model)
+    ```
+
+    Wrap Google AI model for automatic tracing.
+
+    ---
+
+    ### Set Session
+
+    ```typescript
+    fallom.trace.setSession(configKey, sessionId)
+    ```
+
+    Set session context for tracing.
+
+    | Parameter | Type | Description |
+    | --------- | ---- | ----------- |
+    | `configKey` | string | Your config name from the dashboard |
+    | `sessionId` | string | Unique session/conversation ID |
+
+    ---
+
+    ### Get Model
+
+    ```typescript
+    fallom.models.get(configKey, sessionId, options?): Promise<string>
+    ```
+
+    Get model assignment for A/B testing.
+
+    | Parameter | Type | Description |
+    | --------- | ---- | ----------- |
+    | `configKey` | string | Your config name from the dashboard |
+    | `sessionId` | string | Unique session/conversation ID |
+    | `options.fallback` | string | Model to return if anything fails |
+
+    ---
+
+    ### Get Prompt
+
+    ```typescript
+    fallom.prompts.get(promptKey, options?): Promise<PromptResult>
+    ```
+
+    Get a managed prompt.
+
+    | Parameter | Type | Description |
+    | --------- | ---- | ----------- |
+    | `promptKey` | string | Your prompt key from the dashboard |
+    | `options.variables` | object | Template variables (e.g., `{ userName: "John" }`) |
+    | `options.version` | number | Pin to specific version (default: latest) |
+
+    ---
+
+    ### Get Prompt A/B Test
+
+    ```typescript
+    fallom.prompts.getAB(abTestKey, sessionId, options?): Promise<PromptResult>
+    ```
+
+    Get a prompt from an A/B test.
+
+    | Parameter | Type | Description |
+    | --------- | ---- | ----------- |
+    | `abTestKey` | string | Your A/B test key from the dashboard |
+    | `sessionId` | string | Session ID for sticky assignment |
+    | `options.variables` | object | Template variables |
+
+    ---
+
+    ### Record Custom Metrics
+
+    ```typescript
+    fallom.trace.span(data)
+    ```
+
+    Record custom business metrics.
+
+    ```typescript
+    trace.span({
+      outlier_score: 0.8,
+      user_satisfaction: 4,
+      conversion: true,
+    });
+    ```
+
+  </Tab>
+</Tabs>

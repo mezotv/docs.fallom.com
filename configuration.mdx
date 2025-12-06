@@ -1,0 +1,93 @@
+---
+title: "Configuration"
+description: "Environment variables and initialization options"
+---
+
+<Tabs>
+  <Tab title="Python">
+    ## Environment Variables
+
+    ```bash
+    FALLOM_API_KEY=your-api-key
+    FALLOM_BASE_URL=https://spans.fallom.com  # or http://localhost:8001 for local dev
+    ```
+
+    ## Initialization Options
+
+    ```python
+    fallom.init(
+        api_key="your-api-key",      # Or use FALLOM_API_KEY env var
+        base_url="https://spans.fallom.com",  # Or use FALLOM_BASE_URL env var
+        capture_content=True         # Set False for privacy mode
+    )
+    ```
+
+    ## Privacy Mode
+
+    For companies with strict data policies, disable prompt/completion capture:
+
+    ```python
+    # Via parameter
+    fallom.init(capture_content=False)
+
+    # Or via environment variable
+    FALLOM_CAPTURE_CONTENT=false
+    ```
+
+    In privacy mode, Fallom still tracks:
+
+    | Captured | Not Captured |
+    | -------- | ------------ |
+    | ✅ Model used | ❌ Prompt content |
+    | ✅ Token counts | ❌ Completion content |
+    | ✅ Latency | |
+    | ✅ Session/config context | |
+    | ✅ Prompt key/version (metadata only) | |
+
+  </Tab>
+  <Tab title="TypeScript">
+    ## Environment Variables
+
+    ```bash
+    FALLOM_API_KEY=your-api-key
+    FALLOM_BASE_URL=https://spans.fallom.com
+    FALLOM_CAPTURE_CONTENT=true  # set to "false" for privacy mode
+    ```
+
+    ## Privacy Mode
+
+    Disable prompt/completion capture:
+
+    ```typescript
+    fallom.init({ captureContent: false });
+    ```
+
+    In privacy mode, Fallom still tracks:
+
+    | Captured | Not Captured |
+    | -------- | ------------ |
+    | ✅ Model used | ❌ Prompt content |
+    | ✅ Token counts | ❌ Completion content |
+    | ✅ Latency | |
+    | ✅ Session/config context | |
+    | ✅ Prompt key/version (metadata only) | |
+
+  </Tab>
+</Tabs>
+
+## Get Your API Key
+
+<Card title="Open Dashboard" icon="gauge" href="https://bench.fallom.com">
+  Get your API key from project settings
+</Card>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Model A/B Testing" icon="bolt" href="/model-testing">
+    Test different models to optimize cost and performance.
+  </Card>
+  <Card title="Prompt Management" icon="route" href="/prompt-testing">
+    Experiment with prompts to improve outputs.
+  </Card>
+</CardGroup>
