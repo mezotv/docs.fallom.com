@@ -28,6 +28,14 @@
               "model-testing",
               "prompt-testing"
             ]
+          },
+          {
+            "group": "Integrations",
+            "pages": [
+              "integrations/agno",
+              "integrations/langchain",
+              "integrations/vercel-ai"
+            ]
           }
         ]
       },

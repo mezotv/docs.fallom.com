@@ -1,0 +1,192 @@
+---
+title: "Agno"
+description: "Use Fallom with Agno agents for automatic tracing and A/B testing"
+---
+
+Fallom integrates seamlessly with [Agno](https://github.com/agno-agi/agno) to trace all your agent LLM calls automatically.
+
+<Tip>Get your API key from the [dashboard](https://bench.fallom.com).</Tip>
+
+## Installation
+
+<Tabs>
+  <Tab title="Python">
+    ```bash pip install fallom agno opentelemetry-instrumentation-openai ```
+  </Tab>
+  <Tab title="TypeScript">```bash npm install @fallom/trace agno ```</Tab>
+</Tabs>
+
+## Quick Start
+
+<Tabs>
+  <Tab title="Python">
+    ```python
+    # Initialize Fallom FIRST
+    import fallom
+    fallom.init(api_key="your-api-key")
+
+    # Now import Agno and your LLM provider
+    from agno.agent import Agent
+    from agno.models.openai import OpenAIChat
+
+    # Set session context for tracing
+    fallom.trace.set_session("my-agent", session_id)
+
+    # Create your Agno agent - LLM calls are automatically traced
+    agent = Agent(
+        model=OpenAIChat(id="gpt-4o"),
+        instructions="You are a helpful assistant."
+    )
+
+    # All LLM calls within the agent are traced
+    response = agent.run("What is the capital of France?")
+    ```
+
+  </Tab>
+  <Tab title="TypeScript">
+    ```typescript
+    import fallom from "@fallom/trace";
+    import { Agent } from "agno";
+
+    // Initialize Fallom
+    await fallom.init({ apiKey: "your-api-key" });
+
+    // Set session context
+    fallom.trace.setSession("my-agent", sessionId);
+
+    // Create your Agno agent
+    const agent = new Agent({
+      model: "gpt-4o",
+      instructions: "You are a helpful assistant."
+    });
+
+    // All LLM calls within the agent are traced
+    const response = await agent.run("What is the capital of France?");
+    ```
+
+  </Tab>
+</Tabs>
+
+## Model A/B Testing with Agno
+
+Test different models with your Agno agents:
+
+<Tabs>
+  <Tab title="Python">
+    ```python
+    import fallom
+    from fallom import models
+
+    fallom.init(api_key="your-api-key")
+
+    from agno.agent import Agent
+    from agno.models.openai import OpenAIChat
+
+    # Get assigned model for this session
+    model_id = models.get("agno-agent", session_id, fallback="gpt-4o")
+
+    fallom.trace.set_session("agno-agent", session_id)
+
+    # Use the assigned model with your agent
+    agent = Agent(
+        model=OpenAIChat(id=model_id),
+        instructions="You are a helpful assistant."
+    )
+
+    response = agent.run("Explain quantum computing")
+    ```
+
+  </Tab>
+  <Tab title="TypeScript">
+    ```typescript
+    import fallom, { models } from "@fallom/trace";
+    import { Agent } from "agno";
+
+    await fallom.init({ apiKey: "your-api-key" });
+
+    // Get assigned model for this session
+    const modelId = await models.get("agno-agent", sessionId, {
+      fallback: "gpt-4o"
+    });
+
+    fallom.trace.setSession("agno-agent", sessionId);
+
+    // Use the assigned model with your agent
+    const agent = new Agent({
+      model: modelId,
+      instructions: "You are a helpful assistant."
+    });
+
+    const response = await agent.run("Explain quantum computing");
+    ```
+
+  </Tab>
+</Tabs>
+
+## Prompt Management with Agno
+
+Use managed prompts for your agent instructions:
+
+<Tabs>
+  <Tab title="Python">
+    ```python
+    import fallom
+    from fallom import prompts
+
+    fallom.init(api_key="your-api-key")
+
+    from agno.agent import Agent
+    from agno.models.openai import OpenAIChat
+
+    # Get managed prompt for agent instructions
+    prompt = prompts.get("agent-instructions", variables={
+        "persona": "helpful assistant",
+        "domain": "customer support"
+    })
+
+    fallom.trace.set_session("agno-agent", session_id)
+
+    agent = Agent(
+        model=OpenAIChat(id="gpt-4o"),
+        instructions=prompt.system
+    )
+
+    response = agent.run("How do I reset my password?")
+    ```
+
+  </Tab>
+  <Tab title="TypeScript">
+    ```typescript
+    import fallom, { prompts } from "@fallom/trace";
+    import { Agent } from "agno";
+
+    await fallom.init({ apiKey: "your-api-key" });
+
+    // Get managed prompt for agent instructions
+    const prompt = await prompts.get("agent-instructions", {
+      variables: { persona: "helpful assistant", domain: "customer support" }
+    });
+
+    fallom.trace.setSession("agno-agent", sessionId);
+
+    const agent = new Agent({
+      model: "gpt-4o",
+      instructions: prompt.system
+    });
+
+    const response = await agent.run("How do I reset my password?");
+    ```
+
+  </Tab>
+</Tabs>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Model A/B Testing" icon="flask" href="/model-testing">
+    Learn more about model experiments.
+  </Card>
+  <Card title="View Dashboard" icon="gauge" href="https://bench.fallom.com">
+    See your agent traces and analytics.
+  </Card>
+</CardGroup>

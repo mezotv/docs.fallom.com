@@ -1,0 +1,261 @@
+---
+title: "LangChain"
+description: "Use Fallom with LangChain for automatic tracing and A/B testing"
+---
+
+Fallom integrates with [LangChain](https://langchain.com) to trace all your chain and agent LLM calls automatically.
+
+<Tip>
+  Get your API key from the [dashboard](https://bench.fallom.com).
+</Tip>
+
+## Installation
+
+<Tabs>
+  <Tab title="Python">
+    ```bash
+    pip install fallom langchain langchain-openai opentelemetry-instrumentation-openai
+    ```
+  </Tab>
+  <Tab title="TypeScript">
+    ```bash
+    npm install @fallom/trace langchain @langchain/openai
+    ```
+  </Tab>
+</Tabs>
+
+## Quick Start
+
+<Tabs>
+  <Tab title="Python">
+    ```python
+    # Initialize Fallom FIRST
+    import fallom
+    fallom.init(api_key="your-api-key")
+
+    # Now import LangChain
+    from langchain_openai import ChatOpenAI
+    from langchain_core.prompts import ChatPromptTemplate
+
+    # Set session context for tracing
+    fallom.trace.set_session("langchain-app", session_id)
+
+    # Create your LangChain components - LLM calls are automatically traced
+    llm = ChatOpenAI(model="gpt-4o")
+    prompt = ChatPromptTemplate.from_messages([
+        ("system", "You are a helpful assistant."),
+        ("user", "{input}")
+    ])
+
+    chain = prompt | llm
+
+    # All LLM calls in the chain are traced
+    response = chain.invoke({"input": "What is the capital of France?"})
+    ```
+  </Tab>
+  <Tab title="TypeScript">
+    ```typescript
+    import fallom from "@fallom/trace";
+    import { ChatOpenAI } from "@langchain/openai";
+    import { ChatPromptTemplate } from "@langchain/core/prompts";
+
+    // Initialize Fallom
+    await fallom.init({ apiKey: "your-api-key" });
+
+    // Wrap OpenAI for tracing
+    const model = fallom.trace.wrapOpenAI(new ChatOpenAI({ model: "gpt-4o" }));
+
+    fallom.trace.setSession("langchain-app", sessionId);
+
+    const prompt = ChatPromptTemplate.fromMessages([
+      ["system", "You are a helpful assistant."],
+      ["user", "{input}"]
+    ]);
+
+    const chain = prompt.pipe(model);
+
+    // All LLM calls in the chain are traced
+    const response = await chain.invoke({ input: "What is the capital of France?" });
+    ```
+  </Tab>
+</Tabs>
+
+## Model A/B Testing with LangChain
+
+Test different models in your LangChain applications:
+
+<Tabs>
+  <Tab title="Python">
+    ```python
+    import fallom
+    from fallom import models
+
+    fallom.init(api_key="your-api-key")
+
+    from langchain_openai import ChatOpenAI
+    from langchain_core.prompts import ChatPromptTemplate
+
+    # Get assigned model for this session
+    model_id = models.get("langchain-app", session_id, fallback="gpt-4o")
+
+    fallom.trace.set_session("langchain-app", session_id)
+
+    # Use the assigned model
+    llm = ChatOpenAI(model=model_id)
+    prompt = ChatPromptTemplate.from_messages([
+        ("system", "You are a helpful assistant."),
+        ("user", "{input}")
+    ])
+
+    chain = prompt | llm
+    response = chain.invoke({"input": "Summarize this document"})
+    ```
+  </Tab>
+  <Tab title="TypeScript">
+    ```typescript
+    import fallom, { models } from "@fallom/trace";
+    import { ChatOpenAI } from "@langchain/openai";
+    import { ChatPromptTemplate } from "@langchain/core/prompts";
+
+    await fallom.init({ apiKey: "your-api-key" });
+
+    // Get assigned model for this session
+    const modelId = await models.get("langchain-app", sessionId, {
+      fallback: "gpt-4o"
+    });
+
+    fallom.trace.setSession("langchain-app", sessionId);
+
+    const model = new ChatOpenAI({ model: modelId });
+    const prompt = ChatPromptTemplate.fromMessages([
+      ["system", "You are a helpful assistant."],
+      ["user", "{input}"]
+    ]);
+
+    const chain = prompt.pipe(model);
+    const response = await chain.invoke({ input: "Summarize this document" });
+    ```
+  </Tab>
+</Tabs>
+
+## LangChain Agents with Fallom
+
+Trace your LangChain agents:
+
+<Tabs>
+  <Tab title="Python">
+    ```python
+    import fallom
+    fallom.init(api_key="your-api-key")
+
+    from langchain_openai import ChatOpenAI
+    from langchain.agents import create_react_agent, AgentExecutor
+    from langchain_core.prompts import ChatPromptTemplate
+    from langchain_community.tools import DuckDuckGoSearchRun
+
+    fallom.trace.set_session("langchain-agent", session_id)
+
+    llm = ChatOpenAI(model="gpt-4o")
+    tools = [DuckDuckGoSearchRun()]
+
+    # Create and run the agent - all LLM calls are traced
+    agent = create_react_agent(llm, tools, prompt)
+    agent_executor = AgentExecutor(agent=agent, tools=tools, verbose=True)
+
+    response = agent_executor.invoke({"input": "What's the latest news about AI?"})
+    ```
+  </Tab>
+  <Tab title="TypeScript">
+    ```typescript
+    import fallom from "@fallom/trace";
+    import { ChatOpenAI } from "@langchain/openai";
+    import { createReactAgent, AgentExecutor } from "langchain/agents";
+
+    await fallom.init({ apiKey: "your-api-key" });
+
+    fallom.trace.setSession("langchain-agent", sessionId);
+
+    const model = new ChatOpenAI({ model: "gpt-4o" });
+
+    // Create and run the agent - all LLM calls are traced
+    const agent = await createReactAgent({ llm: model, tools, prompt });
+    const agentExecutor = new AgentExecutor({ agent, tools });
+
+    const response = await agentExecutor.invoke({
+      input: "What's the latest news about AI?"
+    });
+    ```
+  </Tab>
+</Tabs>
+
+## Prompt Management with LangChain
+
+Use Fallom's managed prompts with LangChain:
+
+<Tabs>
+  <Tab title="Python">
+    ```python
+    import fallom
+    from fallom import prompts
+
+    fallom.init(api_key="your-api-key")
+
+    from langchain_openai import ChatOpenAI
+    from langchain_core.prompts import ChatPromptTemplate
+
+    # Get managed prompt
+    prompt_config = prompts.get("assistant-prompt", variables={
+        "persona": "helpful assistant"
+    })
+
+    fallom.trace.set_session("langchain-app", session_id)
+
+    llm = ChatOpenAI(model="gpt-4o")
+    prompt = ChatPromptTemplate.from_messages([
+        ("system", prompt_config.system),
+        ("user", "{input}")
+    ])
+
+    chain = prompt | llm
+    response = chain.invoke({"input": "Help me write an email"})
+    ```
+  </Tab>
+  <Tab title="TypeScript">
+    ```typescript
+    import fallom, { prompts } from "@fallom/trace";
+    import { ChatOpenAI } from "@langchain/openai";
+    import { ChatPromptTemplate } from "@langchain/core/prompts";
+
+    await fallom.init({ apiKey: "your-api-key" });
+
+    // Get managed prompt
+    const promptConfig = await prompts.get("assistant-prompt", {
+      variables: { persona: "helpful assistant" }
+    });
+
+    fallom.trace.setSession("langchain-app", sessionId);
+
+    const model = new ChatOpenAI({ model: "gpt-4o" });
+    const prompt = ChatPromptTemplate.fromMessages([
+      ["system", promptConfig.system],
+      ["user", "{input}"]
+    ]);
+
+    const chain = prompt.pipe(model);
+    const response = await chain.invoke({ input: "Help me write an email" });
+    ```
+  </Tab>
+</Tabs>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Model A/B Testing" icon="flask" href="/model-testing">
+    Learn more about model experiments.
+  </Card>
+  <Card title="View Dashboard" icon="gauge" href="https://bench.fallom.com">
+    See your chain traces and analytics.
+  </Card>
+</CardGroup>
+
+

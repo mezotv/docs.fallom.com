@@ -1,0 +1,263 @@
+---
+title: "Vercel AI SDK"
+description: "Use Fallom with Vercel AI SDK for automatic tracing and A/B testing"
+---
+
+Fallom integrates with the [Vercel AI SDK](https://sdk.vercel.ai) to trace all your LLM calls automatically.
+
+<Tip>Get your API key from the [dashboard](https://bench.fallom.com).</Tip>
+
+## Installation
+
+```bash
+npm install @fallom/trace ai @openrouter/ai-sdk-provider uuid
+```
+
+## Quick Start
+
+```typescript
+import fallom from "@fallom/trace";
+import { generateText } from "ai";
+import { v4 as uuidv4 } from "uuid";
+import { createOpenRouter } from "@openrouter/ai-sdk-provider";
+
+async function main() {
+  // Initialize Fallom
+  await fallom.init({ apiKey: "your-api-key" });
+
+  // Create OpenRouter provider using Vercel AI SDK
+  const openrouter = createOpenRouter({
+    apiKey: "your-openrouter-api-key",
+  });
+
+  // Generate a session ID for tracing
+  const sessionId = uuidv4();
+
+  // Set session context
+  fallom.trace.setSession("my-app", sessionId);
+
+  // Use Vercel AI SDK with OpenRouter - automatically traced!
+  const response = await generateText({
+    model: openrouter("openai/gpt-4o-mini"),
+    messages: [
+      {
+        role: "user",
+        content: "Give me one random fun fact in 1 sentence.",
+      },
+    ],
+  });
+
+  console.log("Response:", response.text);
+}
+
+main().catch(console.error);
+```
+
+## Model A/B Testing
+
+Test different models with Vercel AI SDK:
+
+```typescript
+import fallom, { models } from "@fallom/trace";
+import { generateText } from "ai";
+import { v4 as uuidv4 } from "uuid";
+import { createOpenRouter } from "@openrouter/ai-sdk-provider";
+
+async function main() {
+  await fallom.init({ apiKey: "your-api-key" });
+
+  const openrouter = createOpenRouter({
+    apiKey: "your-openrouter-api-key",
+  });
+
+  const sessionId = uuidv4();
+
+  // Get assigned model for this session
+  const modelId = await models.get("vercel-app", sessionId, {
+    fallback: "openai/gpt-4o-mini",
+  });
+
+  fallom.trace.setSession("vercel-app", sessionId);
+
+  // Use the A/B tested model
+  const response = await generateText({
+    model: openrouter(modelId),
+    messages: [
+      {
+        role: "user",
+        content: "Give me one random fun fact in 1 sentence.",
+      },
+    ],
+  });
+
+  console.log("Model used:", modelId);
+  console.log("Response:", response.text);
+}
+
+main().catch(console.error);
+```
+
+## With OpenAI Provider
+
+Use Fallom with the OpenAI provider:
+
+```typescript
+import fallom from "@fallom/trace";
+import { generateText } from "ai";
+import { createOpenAI } from "@ai-sdk/openai";
+import { v4 as uuidv4 } from "uuid";
+
+async function main() {
+  await fallom.init({ apiKey: "your-api-key" });
+
+  const openai = createOpenAI({
+    apiKey: "your-openai-api-key",
+  });
+
+  const sessionId = uuidv4();
+  fallom.trace.setSession("my-app", sessionId);
+
+  const response = await generateText({
+    model: openai("gpt-4o"),
+    messages: [
+      {
+        role: "user",
+        content: "What is the capital of France?",
+      },
+    ],
+  });
+
+  console.log("Response:", response.text);
+}
+
+main().catch(console.error);
+```
+
+## With Anthropic Provider
+
+Use Fallom with the Anthropic provider:
+
+```typescript
+import fallom from "@fallom/trace";
+import { generateText } from "ai";
+import { createAnthropic } from "@ai-sdk/anthropic";
+import { v4 as uuidv4 } from "uuid";
+
+async function main() {
+  await fallom.init({ apiKey: "your-api-key" });
+
+  const anthropic = createAnthropic({
+    apiKey: "your-anthropic-api-key",
+  });
+
+  const sessionId = uuidv4();
+  fallom.trace.setSession("my-app", sessionId);
+
+  const response = await generateText({
+    model: anthropic("claude-3-5-sonnet-20241022"),
+    messages: [
+      {
+        role: "user",
+        content: "What is the capital of France?",
+      },
+    ],
+  });
+
+  console.log("Response:", response.text);
+}
+
+main().catch(console.error);
+```
+
+## Streaming Responses
+
+Fallom traces streaming responses too:
+
+```typescript
+import fallom from "@fallom/trace";
+import { streamText } from "ai";
+import { createOpenRouter } from "@openrouter/ai-sdk-provider";
+import { v4 as uuidv4 } from "uuid";
+
+async function main() {
+  await fallom.init({ apiKey: "your-api-key" });
+
+  const openrouter = createOpenRouter({
+    apiKey: "your-openrouter-api-key",
+  });
+
+  const sessionId = uuidv4();
+  fallom.trace.setSession("my-app", sessionId);
+
+  // Stream responses - also automatically traced
+  const result = await streamText({
+    model: openrouter("openai/gpt-4o-mini"),
+    messages: [
+      {
+        role: "user",
+        content: "Write a short poem about coding.",
+      },
+    ],
+  });
+
+  for await (const chunk of result.textStream) {
+    process.stdout.write(chunk);
+  }
+}
+
+main().catch(console.error);
+```
+
+## Prompt Management
+
+Use Fallom's managed prompts with Vercel AI SDK:
+
+```typescript
+import fallom, { prompts } from "@fallom/trace";
+import { generateText } from "ai";
+import { createOpenRouter } from "@openrouter/ai-sdk-provider";
+import { v4 as uuidv4 } from "uuid";
+
+async function main() {
+  await fallom.init({ apiKey: "your-api-key" });
+
+  const openrouter = createOpenRouter({
+    apiKey: "your-openrouter-api-key",
+  });
+
+  const sessionId = uuidv4();
+
+  // Get managed prompt
+  const prompt = await prompts.get("fun-facts", {
+    variables: { topic: "science" },
+  });
+
+  fallom.trace.setSession("my-app", sessionId);
+
+  const response = await generateText({
+    model: openrouter("openai/gpt-4o-mini"),
+    system: prompt.system,
+    messages: [
+      {
+        role: "user",
+        content: prompt.user,
+      },
+    ],
+  });
+
+  console.log("Response:", response.text);
+}
+
+main().catch(console.error);
+```
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Model A/B Testing" icon="flask" href="/model-testing">
+    Learn more about model experiments.
+  </Card>
+  <Card title="View Dashboard" icon="gauge" href="https://bench.fallom.com">
+    See your traces and analytics.
+  </Card>
+</CardGroup>
