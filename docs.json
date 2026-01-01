@@ -8,6 +8,18 @@
     "dark": "#262630"
   },
   "favicon": "/fallom_logo_white.png",
+  "contextual": {
+    "options": [
+      "copy",
+      "view",      
+      "chatgpt",
+      "claude",
+      "mcp"
+    ]
+  },
+  "background": {
+    "decoration": "windows"
+  },
   "navigation": {
     "tabs": [
       {
@@ -68,10 +80,13 @@
     "primary": {
       "type": "button",
       "label": "Dashboard",
-      "href": "https://bench.fallom.com/login"
+      "href": "https://app.fallom.com/login"
     }
   },
   "footer": {
-    "socials":{}
+    "socials": {
+      "x": "https://x.com/sistilli",
+     "github": "https://github.com/fallomai"
+    }
   }
 }
